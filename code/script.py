@@ -1,0 +1,40 @@
+#############################################
+#
+#   Autor:      Fredrick Johansson
+#   Project:    Playing around.
+#   Purpose:    Exporting the vertices of meshes into a binary file.
+#
+#############################################
+
+import bpy      # Blender Python API
+import struct   # Struct, for packing of binary data
+
+# Say hello
+print("LAExporter initializing...")
+
+# Open file, binary mode, and write header
+file = open("models.la3d", 'wb')
+file.write(struct.pack('<II', 1, 0))
+
+# Fetch scene entities
+for item in bpy.data.objects:
+    print("Name: " + item.name)
+    
+    # Is it a mesh?
+    if (item.type == 'MESH'):
+        # Tell user important info
+        print("Exporting mesh: " + item.name)
+        
+        # Insert a mesh header.
+        file.write(struct.pack('<I', int(len(item.data.vertices))))
+        
+        # iterate through all vertices
+        for vertex in item.data.vertices:
+            file.write(struct.pack('<fff', vertex.co.x, vertex.co.y, vertex.co.z))              # Write postition
+            file.write(struct.pack('<fff', vertex.normal.x, vertex.normal.y, vertex.normal.z))  # Write normal
+            
+# Close the file
+file.close()
+
+# Say goodbye
+print("LAExporter done!")
